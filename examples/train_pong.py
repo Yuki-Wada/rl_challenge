@@ -82,9 +82,6 @@ class ImageStateConverter:
     prev_features: List[int] = field(default_factory=lambda: [0.] * 6 * 3)
 
     def convert_image_to_coords(self, image):
-        self.game_image_height = 2000
-        self.game_image_top = 2000
-
         is_my_board = np.all(
             image[self.game_image_top:self.game_image_bottom] == self.green_my_board, axis=-1)
         my_board_x = np.max(np.argmax(is_my_board, axis=1))
@@ -206,7 +203,7 @@ def q_learning(
     image_state_converter = ImageStateConverter()
 
     q_network = FeatureNeuralNetwork()
-    optimizer = optim.Adam(q_network.parameters(), lr=1e-3)
+    optimizer = optim.SGD(q_network.parameters(), lr=1e-3)
 
     model = dict()
     memory = set()
@@ -220,8 +217,7 @@ def q_learning(
             prev_observation)
         target_network = deepcopy(q_network)
         for t in range(10000):
-            if render and i >= 100:
-                # if render:
+            if render:
                 env.render()
 
             network_action = get_network_action(
