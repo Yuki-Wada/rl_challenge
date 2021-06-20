@@ -9,8 +9,9 @@ import numpy as np
 import gym
 import pyglet
 
-from examples.mcts import RandomPolicy, MCTS
 from examples.utils import set_seed, set_logger, dump_json
+from examples.reversi_env import ReversiEnv
+from examples.mcts import RandomPolicy, MCTS
 
 logger = logging.getLogger(__name__)
 
@@ -48,13 +49,12 @@ class Drawer:
     MAP_COLORS = {
         'B': (255, 255, 255),
         'W': (  0,   0,   0),
-        'O': ( 64, 192,   0)
+        'O': ( 64, 192,   0),
     }
 
     def __init__(self):
         self._window = pyglet.window.Window(Drawer.GRID_SIZE * Drawer.ROW_NUM, Drawer.GRID_SIZE * Drawer.COL_NUM)
         self._window.set_caption("Reversi")
-
 
     def draw_lines(self):
         for pos_x in range(Drawer.COL_NUM):
@@ -141,8 +141,9 @@ def train_mcts(
     ):
     drawer = Drawer()
     # my_policy = RandomPolicy(0)
-    my_policy = MCTS()
-    opponent_policy = RandomPolicy(0)
+    my_policy = MCTS(time_limit=3)
+    # opponent_policy = RandomPolicy(0)
+    opponent_policy = MCTS(time_limit=1)
 
     for i_episode in range(episode_count):
         observation = env.reset()
@@ -176,7 +177,13 @@ def train_mcts(
                 break
 
 def run():
-    env = gym.make('Reversi8x8-v0')
+    env = ReversiEnv(
+        player_color='black',
+        opponent='random',
+        observation_type='numpy3c',
+        illegal_place_mode='lose',
+        board_size=8,
+    )
     env.reset()
 
     set_logger()
